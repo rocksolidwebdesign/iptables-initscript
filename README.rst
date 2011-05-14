@@ -64,8 +64,8 @@ Here are  the commands that ``service iptables`` accepts
 * ``restart`` really  does nothing  useful, if you  want to  change your
   firewall settings, what you want is actually ``force-reload``
 
-* ``save`` just backs  up the current settings these  settings will then
-  be loaded the next timt that ``start`` is run
+* ``save`` just  backs up the  current settings and these  settings will
+  then be loaded the next time that ``start`` is run
 
 * ``reset``  saves  the  current  settings but  resets  all  the  packet
   counters back to zero
