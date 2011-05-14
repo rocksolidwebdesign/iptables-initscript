@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+iptables="/sbin/iptables-restore"
+pidfile="/etc/iptables/pidfile"
+down="/etc/iptables/down.rules"
+
+[[ ! -e "$pidfile" ]] || rm -rf "$pidfile"
+
+"$iptables" -c < "$down"

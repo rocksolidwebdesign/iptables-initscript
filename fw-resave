@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+iptables="/sbin/iptables-save"
+backup_file="/etc/iptables/saved.rules"
+
+"$iptables" -c > "$backup_file"

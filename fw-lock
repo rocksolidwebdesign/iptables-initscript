@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+# bogus, random "no purpose" type command
+# because there's no such thing as firewall locking
+foo=$(which iptables)

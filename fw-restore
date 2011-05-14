@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+iptables="/sbin/iptables-restore"
+pidfile="/etc/iptables/pidfile"
+saved="/etc/iptables/saved.rules"
+up="/etc/iptables/up.rules"
+
+touch "$pidfile"
+
+# restore from save if possible otherwise start over
+if [[ -s "$saved" ]]; then
+    "$iptables" -c < "$saved"
+else
+    "$iptables" < "$up"
+fi

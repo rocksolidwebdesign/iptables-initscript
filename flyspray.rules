@@ -1,0 +1,15 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+:FLYSPRAY - [0:0]
+-A INPUT  -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+-A INPUT  -m conntrack --ctstate     RELATED,ESTABLISHED -j ACCEPT
+-A OUTPUT -m conntrack --ctstate NEW,RELATED,ESTABLISHED -j ACCEPT
+-A INPUT -p tcp -m recent --rcheck --name BADGUY --rsource -j DROP
+-A INPUT -p tcp -m tcp --dport 22 --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -m recent --rcheck --seconds 45 --hitcount 6 --name SSH --rsource -j FLYSPRAY
+-A INPUT -p tcp -m tcp --dport 22 --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -m recent --update --seconds 30 --hitcount 3 --name SSH --rsource -j REJECT --reject-with tcp-reset
+-A INPUT -p tcp -m tcp --dport 22 --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -m recent --set --name SSH --rsource -j ACCEPT
+-A FLYSPRAY -p tcp -m recent --set --name BADGUY --rsource -j DROP
+COMMIT

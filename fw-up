@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+iptables="/sbin/iptables-restore"
+pidfile="/etc/iptables/pidfile"
+up="/etc/iptables/up.rules"
+
+touch "$pidfile"
+
+"$iptables" < "$up"
