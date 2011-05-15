@@ -2,14 +2,14 @@
 #
 ### BEGIN INIT INFO
 # Provides:          iptables
-# Required-Start:    $syslog
-# Required-Stop:     $syslog
+# Required-Start:    mountkernfs $local_fs
+# Required-Stop:     $local_fs
 # Should-Start:      $local_fs $network
 # Should-Stop:       $local_fs $network
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # Short-Description: Start and stop the default iptables firewall
-# Description:       Manage the iptables firewall using the rules files in /etc/iptables
+# Description:       Manage the iptables firewall using the rules files in /etc/iptables/*.rules
 ### END INIT INFO
 
 . /lib/lsb/init-functions
@@ -17,16 +17,10 @@
 fwbindir="/usr/local/sbin"
 up="$fwbindir/fw-up"
 down="$fwbindir/fw-down"
-save="$fwbindir/fw-save"
-resave="$fwbindir/fw-resave"
-restore="$fwbindir/fw-restore"
 lock="$fwbindir/fw-lock"
 
 [ -s "$up" ] || exit 0
 [ -s "$down" ] || exit 0
-[ -s "$save" ] || exit 0
-[ -s "$resave" ] || exit 0
-[ -s "$restore" ] || exit 0
 [ -s "$lock" ] || exit 0
 
 service_name="iptables"
@@ -46,47 +40,31 @@ log_cmd_with_status() {
     return $command_status
 }
 
-start()   { log_cmd_with_status "$up"      "Starting $service_name..."; }
-stop()    { log_cmd_with_status "$down"    "Stopping $service_name..."; }
-save()    { log_cmd_with_status "$save"    "Saving backup $service_name..."; }
-resave()  { log_cmd_with_status "$resave"  "Saving backup with reset packet counts for $service_name..."; }
-restore() { log_cmd_with_status "$restore" "Loading $service_name rules from backup..."; }
-lock()    { log_cmd_with_status "$lock"    "Pretending to lock $service_name..."; }
+start()   { log_cmd_with_status "$up"      "Loading $service_name..."; return $?; }
+stop()    { log_cmd_with_status "$down"    "Disabling $service_name..."; return $?; }
+lock()    { log_cmd_with_status "$lock"    "Pretending to lock $service_name..."; return $?; }
 
 # See how we were called.
 case "$1" in
-    start)
-        if [ -s /etc/iptables/saved.rules ]; then
-            restore
-        else
-            start
-        fi
+    start|restart|force-reload)
+        stop
+        start
+        command_return_val=$?
         ;;
     stop)
-        save
         stop
-        ;;
-    restart)
-        save
-        restore
-        ;;
-    save)
-        save
-        ;;
-    reset)
-        resave
-        ;;
-    force-reload)
-        start
-        resave
+        command_return_val=$?
         ;;
     lock)
         lock
+        command_return_val=$?
         ;;
     status)
         log_warning_msg "Firewall rules in iptables.\n$(/sbin/iptables -vL)"
+        command_return_val=$?
         ;;
     *)
         log_success_msg "Usage: iptables {start|stop|restart|save|reset|force-reload|lock|status}"
         exit 1
 esac
+exit $command_return_val

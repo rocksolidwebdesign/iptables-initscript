@@ -10,7 +10,7 @@ find /usr/local/sbin -executable -type f -iname 'fw-*' -exec rm -rf "{}" +
 
 # remove from the system startup items
 echo "Removing system startup items from runlevels"
-find /etc/rc*/*iptables -exec rm -rf "{}" +
+update-rc.d -f iptables remove
 
 # delete the service script
 echo "Deleting the service script"
