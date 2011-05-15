@@ -5,4 +5,4 @@ up="/etc/iptables/up.rules"
 
 touch "$pidfile"
 
-"$iptables" < "$up"
+"$iptables" -c < "$up"
