@@ -36,11 +36,6 @@ Which simply reads loads your rules from::
 
     /etc/iptables/up.rules
 
-If  you want  to  change your  firewall settings  then  just change  the
-``up.rules`` file, reload the firewall with::
-
-    sudo service iptables force-reload
-
 and your  new changes should  be in  effect. You can check them by using::
 
     sudo service iptables status
@@ -50,29 +45,45 @@ Service Commands
 
 Here are  the commands that ``service iptables`` accepts
 
-* ``start`` will  load in the  current settings  from the backup  if one
-  exists or from the ``up.rules`` file.
-
-* ``stop`` will  backup the current  settings to the backup  rules file,
-  ``saved.rules``,  and then  remove  all current  rules  and reset  the
-  firewall back  to allowing  everything, in other  words back  to being
-  "turned off" as far as firewalls go.
-
-* ``restart`` really  does nothing  useful, if you  want to  change your
-  firewall settings, what you want is actually ``force-reload``
-
-* ``save`` just  backs up the  current settings and these  settings will
-  then be loaded the next time that ``start`` is run
-
-* ``reset``  saves  the  current  settings but  resets  all  the  packet
-  counters back to zero
-
-* ``force-reload`` will  load fresh rules  from the primary  rules file,
-  ``up.rules``, and delete the current backup.
+* ``start`` ``stop`` and ``reset`` will  all load  in the  current rules
+  in ``up.rules``
 
 * ``lock`` does nothing, maybe it should? I dunno.
 
 * ``status`` is just an alias for ``iptables -vL``
+
+Utility Scripts
+===============
+
+There  are a  number of  utility scripts  that begin  with ``fw-``  like
+``fw-up`` and  ``fw-down`` to start  and stop the firewall.  The service
+script actually  just calls these  scripts. There  are a couple  more of
+these than just what is available through the service, since the service
+is only for automatically starting the firewall on boot.
+
+Here are the scripts and what they do
+
+* ``fw-up``   loads   the   rules  in   ``/etc/iptables/up.rules``   via
+  ``iptables-restore``
+
+* ``fw-down`` loads the rules in ``/etc/iptables/down.rules``. Basically
+  this  is   an  empty  rules   file  that  allows   everything  because
+  iptables-restore is good at flushing the  previous rule sets so we let
+  iptables flush  the previous  rule set  and then  just don't  load any
+  rules  which  essentially amounts  to  "disabling"  or "stopping"  the
+  firewall because it won't block anything anymore.
+
+* ``fw-save``     will     save      your     current     ruleset     to
+  ``/etc/iptables/saved.rules``
+
+* ``fw-restore``     will     load      the     saved     rules     from
+  ``/etc/iptables/saved.rules``
+
+* ``fw-resave`` will  save your current ruleset,  like ``fw-save`` does,
+  but will reset the packet counters back to zero
+
+* ``fw-lock`` is just  an opaque no-op (no operation) to  make it easier
+  to integrate with the sysv initscript. It really does nothing.
 
 The Example Rules Files
 =======================
